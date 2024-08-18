@@ -18,7 +18,7 @@ const getData = async (setIsSchoolSave : any) => {
 
 const { width } = Dimensions.get('window');
 
-const Home = ({ navigation }: { navigation: any }) => {
+const Home = ({ navigation }: any) => {
   const [isSchoolSave, setIsSchoolSave] = useState(true);
   const isDarkMode = useColorScheme() === 'dark';
 
@@ -66,7 +66,7 @@ const createStyles = (isDarkMode: boolean) => StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    marginTop: 0,
+    marginTop: -20,
     width: width - width / 10,
     fontFamily: 'Roboto',
     fontSize: 24,
