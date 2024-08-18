@@ -1,49 +1,49 @@
-import React, { useState , useEffect } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Dimensions, useColorScheme } from 'react-native';
+import { StyleSheet, Text, ScrollView, TouchableOpacity, Dimensions, useColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const getData = async (setIsSchoolSave : any) => {
-    try {
-      const value = await AsyncStorage.getItem('@School_Code');
-
-      if (value !== null) {
-        setIsSchoolSave(true);
-      } else {
-        setIsSchoolSave(false);
-      }
-    } catch (e) {
-        setIsSchoolSave(false);
-    }
-};
+import { useFocusEffect } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/AntDesign';
+import React, { useState, useCallback } from 'react';
 
 const { width } = Dimensions.get('window');
 
-const Home = ({ navigation }: any) => {
-  const [isSchoolSave, setIsSchoolSave] = useState(true);
+const fetchSchoolData = async (setIsSchoolSaved: React.Dispatch<React.SetStateAction<boolean>>) => {
+  try {
+    const jsonValue = await AsyncStorage.getItem('@School_Code');
+    setIsSchoolSaved(jsonValue != null ? JSON.parse(jsonValue) : null);
+  } catch {
+    setIsSchoolSaved(false);
+  }
+};
+
+const Home = ({ navigation }: { navigation: any }) => {
+  const [isSchoolSaved, setIsSchoolSaved] = useState<any | null>(true);
   const isDarkMode = useColorScheme() === 'dark';
 
-  const styles = createStyles(isDarkMode);
-  const schoolStyles = createSchoolStyles(isDarkMode);
+  useFocusEffect(
+    useCallback(() => {
+      fetchSchoolData(setIsSchoolSaved);
+    }, [])
+  );
 
   const handleSchoolPress = () => {
     navigation.navigate('SchoolModification');
   };
 
-  useEffect(() => {
-    getData(setIsSchoolSave);
-  }, []);
+  const styles = createStyles(isDarkMode);
+  const schoolStyles = createSchoolStyles(isDarkMode);
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer} style={styles.scrollView}>
-      <Text style={styles.title}>캘린더 프로 설정</Text>
+      <TouchableOpacity style={styles.titleContainer} onPress={() => navigation.navigate('Home')}>
+        <Icon name="home" style={styles.backIcon} />
+        <Text style={styles.title}>캘린더 프로 설정</Text>
+      </TouchableOpacity>
 
-      <View style={styles.separator} />
-
-      <TouchableOpacity style={schoolStyles.school} onPress={handleSchoolPress}>
-        {isSchoolSave ? (
+      <TouchableOpacity style={schoolStyles.container} onPress={handleSchoolPress}>
+        {isSchoolSaved ? (
           <>
-            <Text style={schoolStyles.schoolTitle}>🏫 서울대학교사범대학부설고등학교</Text>
-            <Text style={schoolStyles.schoolAddress}>서울특별시 성북구 월곡로 6 (종암동)</Text>
+            <Text style={schoolStyles.schoolTitle}>🏫 {isSchoolSaved?.name}</Text>
+            <Text style={schoolStyles.schoolAddress}>{isSchoolSaved?.region}</Text>
           </>
         ) : (
           <>
@@ -52,11 +52,40 @@ const Home = ({ navigation }: any) => {
           </>
         )}
       </TouchableOpacity>
+
+      <TouchableOpacity style={styles.AcademicContainer} onPress={handleSchoolPress}>
+        <Icon name="calendar" style={styles.AcademicIcon} />
+        <Text style={styles.AcademicTitle}>학사 일정</Text>
+      </TouchableOpacity>
+
     </ScrollView>
   );
 };
 
 const createStyles = (isDarkMode: boolean) => StyleSheet.create({
+  AcademicIcon : {
+    color: isDarkMode ? '#f8f6fa' : '#000000',
+    marginRight: 10,
+    fontSize: 30,
+  },
+  AcademicContainer : {
+    width: width - 10,
+    padding: 15,
+    borderRadius: 15,
+    backgroundColor: isDarkMode ? '#1E1E1E' : '#FFFFFF',
+    marginTop : 15,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    flexDirection: 'row',
+  },
+  AcademicTitle : {
+    fontSize: 20,
+    fontFamily: 'Roboto',
+    fontWeight: '600',
+    color: isDarkMode ? '#FFFFFF' : '#000000',
+  },
   scrollView: {
     flex: 1,
     backgroundColor: isDarkMode ? '#000000' : '#F8F8F8',
@@ -65,36 +94,39 @@ const createStyles = (isDarkMode: boolean) => StyleSheet.create({
     padding: 40,
     alignItems: 'center',
   },
+  titleContainer: {
+    marginTop: -10,
+    marginBottom: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backIcon: {
+    color: isDarkMode ? '#f8f6fa' : '#000000',
+    marginLeft: 30,
+    marginRight: 8,
+    fontSize: 28,
+  },
   title: {
-    marginTop: -20,
-    width: width - width / 10,
+    width: width * 0.9,
     fontFamily: 'Roboto',
     fontSize: 24,
     fontWeight: '700',
     color: isDarkMode ? '#FFFFFF' : '#000000',
     marginBottom: 5,
   },
-  separator: {
-    height: 1,
-    width: width,
-    backgroundColor: isDarkMode ? '#333333' : '#DDDDDD',
-    marginVertical: 15,
-  },
 });
 
 const createSchoolStyles = (isDarkMode: boolean) => StyleSheet.create({
-  school: {
+  container: {
     width: width - 10,
     padding: 15,
     borderRadius: 15,
-    backgroundColor: isDarkMode ? '#1E1E1E' : '#FFFFFF',
+    backgroundColor: isDarkMode ? '#2e2c30' : '#efeef2',
     shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
-    marginTop : 0,
-    marginBottom: 20,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 0,
   },
   schoolTitle: {
     fontSize: 19,

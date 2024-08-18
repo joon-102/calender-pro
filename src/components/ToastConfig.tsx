@@ -6,7 +6,7 @@ const styles = StyleSheet.create({
   toastContainer: {
     backgroundColor: '#333',
     borderRadius: 20,
-    marginBottom : 15,
+    marginBottom: 15,
     padding: 15,
     alignItems: 'center',
   },
@@ -19,6 +19,11 @@ const styles = StyleSheet.create({
 
 const toastConfig: ToastConfig = {
   error: (props) => (
+    <View style={styles.toastContainer}>
+      <Text style={styles.toastText}>{props.text1}</Text>
+    </View>
+  ),
+  success: (props) => (
     <View style={styles.toastContainer}>
       <Text style={styles.toastText}>{props.text1}</Text>
     </View>
