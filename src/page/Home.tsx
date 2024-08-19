@@ -34,24 +34,28 @@ const Home = ({ navigation }: { navigation: any }) => {
 
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer} style={styles.scrollView}>
-      <TouchableOpacity style={styles.titleContainer} onPress={() => navigation.navigate('Home')}>
-        <Icon name="home" style={styles.backIcon} />
-        <Text style={styles.title}>캘린더 프로 설정</Text>
-      </TouchableOpacity>
+      <>
+        <TouchableOpacity style={styles.titleContainer} onPress={() => navigation.navigate('Home')}>
+          <Icon name="home" style={styles.backIcon} />
+          <Text style={styles.title}>캘린더 프로 설정</Text>
+        </TouchableOpacity>
+      </>
 
-      <TouchableOpacity style={schoolStyles.container} onPress={handleSchoolPress}>
-        {isSchoolSaved ? (
-          <>
-            <Text style={schoolStyles.schoolTitle}>🏫 {isSchoolSaved?.name}</Text>
-            <Text style={schoolStyles.schoolAddress}>{isSchoolSaved?.region}</Text>
-          </>
-        ) : (
-          <>
-            <Text style={schoolStyles.noSchoolTitle}>🏫 학교가 설정되지 않았어요!</Text>
-            <Text style={schoolStyles.noSchoolAddress}>여기를 눌러 학교를 등록해주세요.</Text>
-          </>
-        )}
-      </TouchableOpacity>
+      <>
+        <TouchableOpacity style={schoolStyles.container} onPress={handleSchoolPress}>
+          {isSchoolSaved ? (
+            <>
+              <Text style={schoolStyles.schoolTitle}>🏫 {isSchoolSaved?.name}</Text>
+              <Text style={schoolStyles.schoolAddress}>{isSchoolSaved?.region}</Text>
+            </>
+          ) : (
+            <>
+              <Text style={schoolStyles.noSchoolTitle}>🏫 학교가 설정되지 않았어요!</Text>
+              <Text style={schoolStyles.noSchoolAddress}>여기를 눌러 학교를 등록해주세요.</Text>
+            </>
+          )}
+        </TouchableOpacity>
+      </>
 
       <TouchableOpacity style={styles.AcademicContainer} onPress={handleSchoolPress}>
         <Icon name="calendar" style={styles.AcademicIcon} />
@@ -63,28 +67,32 @@ const Home = ({ navigation }: { navigation: any }) => {
 };
 
 const createStyles = (isDarkMode: boolean) => StyleSheet.create({
-  AcademicIcon : {
+  AcademicIcon: {
     color: isDarkMode ? '#f8f6fa' : '#000000',
-    marginRight: 10,
+    marginRight: 8,
+    marginLeft : 0,
     fontSize: 30,
+    lineHeight: 30,
   },
-  AcademicContainer : {
+  AcademicContainer: {
     width: width - 10,
+    alignItems: 'center',
     padding: 15,
     borderRadius: 15,
     backgroundColor: isDarkMode ? '#1E1E1E' : '#FFFFFF',
-    marginTop : 15,
+    marginTop: 15,
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
     flexDirection: 'row',
   },
-  AcademicTitle : {
-    fontSize: 20,
+  AcademicTitle: {
+    fontSize: 22,
     fontFamily: 'Roboto',
     fontWeight: '600',
     color: isDarkMode ? '#FFFFFF' : '#000000',
+    lineHeight: 30,
   },
   scrollView: {
     flex: 1,
