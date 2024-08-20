@@ -2,20 +2,16 @@ import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Dimensions, useCo
 import React, { useState, useRef, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/AntDesign';
-import NetInfo from '@react-native-community/netinfo';
 import Toast from 'react-native-toast-message';
 import axios from 'axios';
 
-const { width } = Dimensions.get('window');
+import Navbar from '../components/Navbar';
 
-const fetchSchoolData = async (setIsSchoolSaved: React.Dispatch<React.SetStateAction<boolean>>) => {
-    try {
-        const jsonValue = await AsyncStorage.getItem('@School_Code');
-        setIsSchoolSaved(jsonValue != null ? JSON.parse(jsonValue) : null);
-    } catch {
-        setIsSchoolSaved(false);
-    }
-};
+import useNetInfoListener from '../hook/useNetInfoListener';
+
+import fetchSchoolData from '../utils/schoolService';
+
+const { width } = Dimensions.get('window');
 
 const onSchoolSelection = async (navigation: any, searchResults: any, schulCode: any) => {
     const find = searchResults.find((data: { SD_SCHUL_CODE: string }) => { return data.SD_SCHUL_CODE === schulCode; });
@@ -25,86 +21,60 @@ const onSchoolSelection = async (navigation: any, searchResults: any, schulCode:
         await AsyncStorage.setItem('@School_Code', jsonValue);
         setTimeout(() => {
             navigation.navigate('Home');
-        }, 300);
+        }, 100);
     } catch (_) {
-        Toast.show({ type: 'success', text1: '학교 등록을 실패했어요, 다시 시도해 주세요', position: 'bottom' });
+        Toast.show({ type: 'error', text1: '학교 등록을 실패했어요, 다시 시도해 주세요', position: 'bottom' });
     }
 };
 
 function SchoolModification({ navigation }: any) {
-    const [isSchoolSave, setIsSchoolSaved] = useState<any | null>(false);
-    const [searchResults, setSearchResults] = useState([]); // API 응답 결과
-    const [input, setInput] = useState('');
+    const [schoolData, setSchoolData] = useState<any>(false);
+    const [searchResults, setSearchResults] = useState<any[]>([]);
+    const [input, setInput] = useState<string>('');
+    const textInputRef = useRef<any>(null);
 
-    const textInputRef: any = useRef(null);
+    const styles = createStyles(useColorScheme() === 'dark');
 
-    const isDarkMode = useColorScheme() === 'dark';
-    const styles = createStyles(isDarkMode);
-
-    useEffect(() => {
-        fetchSchoolData(setIsSchoolSaved);
-    }, [isSchoolSave]);
+    useNetInfoListener(navigation ,'Home');
 
     useEffect(() => {
-        if (input.length === 0) {
-            setSearchResults([]);
-            return;
+        const fetchSchoolInfo = async () => {
+            setSchoolData(await fetchSchoolData());
+        };
+        fetchSchoolInfo();
+    }, []);
+
+    useEffect(() => {
+        if (!input) {
+            return setSearchResults([]);
         }
 
-        const fetchSearchResults = async () => {
+        (async () => {
             try {
-                const response = await axios.get('https://open.neis.go.kr/hub/schoolInfo', {
+                const { data } = await axios.get('https://open.neis.go.kr/hub/schoolInfo', {
                     params: { Type: 'json', SCHUL_NM: input },
                 });
-                setSearchResults(response.data.schoolInfo[1].row);
-            } catch (error: any) {
-                // Nothing
-            }
-        };
-
-        fetchSearchResults();
+                setSearchResults(data.schoolInfo[1].row);
+            } catch {}
+        })();
     }, [input]);
-
-    useEffect(() => {
-        const unsubscribe = NetInfo.addEventListener((state) => {
-            if (!state.isConnected) {
-                Toast.show({ type: 'error', text1: '인터넷이 연결되어 있지 않아요.', position: 'bottom' });
-                setTimeout(() => {
-                    navigation.navigate('Home');
-                }, 500);
-            }
-        });
-        return () => {
-            unsubscribe();
-        };
-    }, [navigation]);
 
     return (
         <ScrollView contentContainerStyle={styles.scrollContainer} style={styles.scrollView}>
-            <TouchableOpacity style={styles.titleContainer} onPress={() => navigation.navigate('Home')} >
-                <Icon name="left" style={styles.backIcon} />
-                <Text style={styles.title}>학교 설정</Text>
-            </TouchableOpacity>
+            <Navbar navigation={navigation} name="left" title="학교 설정" NavigatePath="Home" />
 
-            {isSchoolSave ? (
-                <View style={styles.school}>
-                    <Text style={styles.schoolTitle}>🏫 {isSchoolSave?.name}</Text>
-                    <Text style={styles.schoolAddress}>{isSchoolSave?.region}</Text>
-                </View>
-            ) : (
-                <View style={styles.school}>
-                    <Text style={styles.noSchoolTitle}>🏫 학교가 설정되지 않았어요!</Text>
-                    <Text style={styles.noSchoolAddress}>아래서 학교를 검색해보세요!</Text>
-                </View>
-            )}
+            <View style={styles.school}>
+                <Text style={styles.schoolTitle}>
+                    🏫 {schoolData ? schoolData.name : '학교가 설정되지 않았어요!'}
+                </Text>
+                <Text style={styles.schoolAddress}>
+                    {schoolData ? schoolData.region : '아래서 학교를 검색해보세요!'}
+                </Text>
+            </View>
 
             <Text style={styles.schoolContainerTitle}>학교 등록</Text>
 
-            <TouchableWithoutFeedback onPress={() => {
-                if (textInputRef.current) {
-                    textInputRef.current.focus();
-                }
-            }}>
+            <TouchableWithoutFeedback onPress={() => textInputRef.current?.focus()}>
                 <View style={styles.inputContainer}>
                     <Icon name="search1" style={styles.inputIcon} />
                     <TextInput ref={textInputRef} style={styles.inputValue} placeholder="학교명을 입력해주세요." value={input} onChangeText={setInput} placeholderTextColor="#B0B0B0" />
@@ -165,10 +135,8 @@ const createStyles = (isDarkMode: boolean) => StyleSheet.create({
         borderRadius: 15,
         backgroundColor: isDarkMode ? '#2e2c30' : '#efeef2',
         shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 0 },
         shadowOpacity: 0.1,
         shadowRadius: 2,
-        elevation: 0,
     },
     schoolTitle: {
         fontSize: 19,
