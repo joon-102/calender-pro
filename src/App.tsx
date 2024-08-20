@@ -5,10 +5,11 @@ import Toast from 'react-native-toast-message';
 
 import Home from './page/Home';
 import SchoolModification from './page/SchoolModification';
+import AcademicCalendar from './page/AcademicCalendar';
+
+import toastConfig from './components/Toast';
 
 const Stack = createNativeStackNavigator();
-import toastConfig from './components/ToastConfig';
-
 
 function App() {
   return (
@@ -17,9 +18,10 @@ function App() {
         <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }} >
           <Stack.Screen name="Home" component={Home} />
           <Stack.Screen name="SchoolModification" component={SchoolModification} />
+          <Stack.Screen name="AcademicCalendar" component={AcademicCalendar} />
         </Stack.Navigator>
       </NavigationContainer>
-      <Toast config={toastConfig}  visibilityTime={1800} />
+      <Toast config={toastConfig}  visibilityTime={1500} />
     </>
   );
 }
