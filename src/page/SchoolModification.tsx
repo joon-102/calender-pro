@@ -20,7 +20,7 @@ const onSchoolSelection = async (navigation: any, searchResults: any, schulCode:
         const jsonValue = JSON.stringify({ name: find.SCHUL_NM, region: find.ORG_RDNMA });
         await AsyncStorage.setItem('@School_Code', jsonValue);
         setTimeout(() => {
-            navigation.navigate('Home');
+            navigation.replace('Home');
         }, 100);
     } catch (_) {
         Toast.show({ type: 'error', text1: '학교 등록을 실패했어요, 다시 시도해 주세요', position: 'bottom' });

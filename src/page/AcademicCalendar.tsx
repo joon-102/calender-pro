@@ -1,5 +1,6 @@
 import { StyleSheet, ScrollView, Text, Dimensions, useColorScheme, View } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign';
+import ToggleSwitch from 'toggle-switch-react-native';
 import React, { useEffect } from 'react';
 import Toast from 'react-native-toast-message';
 
@@ -20,7 +21,7 @@ const AcademicCalendar = ({ navigation }: any) => {
             if (!searchResults) {
                 Toast.show({ type: 'error', text1: '학교가 등록되지 않았어요.', position: 'bottom' });
                 setTimeout(() => {
-                    navigation.navigate('Home');
+                    navigation.replace('Home');
                 }, 100);
             }
         };
@@ -33,12 +34,24 @@ const AcademicCalendar = ({ navigation }: any) => {
             <View style={styles.active}>
                 <Icon name="calendar" style={styles.activeIcon} />
                 <Text style={styles.activeTitle}>학사일정</Text>
+                <ToggleSwitch
+                    isOn={true}
+                    onColor="gray"
+                    offColor="black"
+                    labelStyle={styles.test}
+                    size="medium"
+                    onToggle={isOn => console.log('changed to : ', isOn)}
+                />
             </View>
         </ScrollView>
     );
 };
 
 const createStyles = (isDarkMode: boolean) => StyleSheet.create({
+    test : {
+        color: 'black',
+        fontWeight: '900',
+    },
     scrollContainer: {
         padding: 40,
         alignItems: 'center',

@@ -34,7 +34,7 @@ function Navbar(props: any) {
 
     return (
         <>
-            <TouchableOpacity style={styles.titleContainer} onPress={() => props.navigation.navigate(props.NavigatePath)}>
+            <TouchableOpacity style={styles.titleContainer} onPress={() => props.navigation.replace(props.NavigatePath)}>
                 <Icon name={props.name} style={styles.backIcon} />
                 <Text style={styles.title}>{props.title}</Text>
             </TouchableOpacity>
